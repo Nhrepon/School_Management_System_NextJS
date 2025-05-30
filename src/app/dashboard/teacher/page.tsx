@@ -1,23 +1,43 @@
 import { Class, Subject, Teacher } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
+import Pagination from "@/components/pagination"
 
 type TeacherWithRelations = Teacher & {
   subjects: Subject[]
   classes: Class[]
 }
 
-async function getTeachers(): Promise<TeacherWithRelations[]> {
-  const teachers = await prisma.teacher.findMany({
-    include: {
-      subjects: true,
-      classes: true,
-    },
-  })
-  return teachers
+async function getTeachers(page: number = 1, itemsPerPage: number = 10): Promise<{
+  teachers: TeacherWithRelations[];
+  total: number;
+}> {
+  const skip = (page - 1) * itemsPerPage;
+  
+  const [teachers, total] = await Promise.all([
+    prisma.teacher.findMany({
+      skip,
+      take: itemsPerPage,
+      include: {
+        subjects: true,
+        classes: true,
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    }),
+    prisma.teacher.count()
+  ]);
+
+  return { teachers, total };
 }
 
-export default async function TeacherListPage() {
-  const teachers = await getTeachers()
+export default async function TeacherListPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Number(searchParams.page) || 1;
+  const { teachers, total } = await getTeachers(currentPage);
 
   return (
     <div className="p-3">
@@ -85,6 +105,11 @@ export default async function TeacherListPage() {
           </tbody>
         </table>
       </div>
+      <Pagination 
+        totalItems={total} 
+        itemsPerPage={10} 
+        currentPage={currentPage}
+      />
     </div>
   )
 }
