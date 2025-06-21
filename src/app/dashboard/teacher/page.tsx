@@ -1,29 +1,26 @@
 import { Class, Subject, Teacher } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import Pagination from "@/components/pagination"
+import { ItemPerPage } from "@/lib/settings"
 
 type TeacherWithRelations = Teacher & {
   subjects: Subject[]
   classes: Class[]
 }
 
-async function getTeachers(page: number = 1, itemsPerPage: number = 10): Promise<{
-  teachers: TeacherWithRelations[];
-  total: number;
-}> {
-  const skip = (page - 1) * itemsPerPage;
-  
+
+async function getTeachers(page: number = 1, itemsPerPage: number = 10) {
   const [teachers, total] = await Promise.all([
     prisma.teacher.findMany({
-      skip,
-      take: itemsPerPage,
       include: {
         subjects: true,
         classes: true,
       },
       orderBy: {
         name: 'asc'
-      }
+      },
+      take: itemsPerPage,
+      skip: (page - 1) * itemsPerPage
     }),
     prisma.teacher.count()
   ]);
@@ -31,13 +28,9 @@ async function getTeachers(page: number = 1, itemsPerPage: number = 10): Promise
   return { teachers, total };
 }
 
-export default async function TeacherListPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
-}) {
+export default async function TeacherListPage({searchParams,}: {searchParams: { page?: string };}) {
   const currentPage = Number(searchParams.page) || 1;
-  const { teachers, total } = await getTeachers(currentPage);
+  const { teachers, total } = await getTeachers(currentPage, ItemPerPage);
 
   return (
     <div className="p-3">
@@ -107,7 +100,7 @@ export default async function TeacherListPage({
       </div>
       <Pagination 
         totalItems={total} 
-        itemsPerPage={10} 
+        itemsPerPage={ItemPerPage} 
         currentPage={currentPage}
       />
     </div>

@@ -49,7 +49,7 @@ async function main() {
   for (let i = 1; i <= 6; i++) {
     await prisma.class.create({
       data: {
-        name: `${i}A`, 
+        name: `${i} A class`, 
         gradeId: i, 
         capacity: Math.floor(Math.random() * (20 - 15 + 1)) + 15,
       },

@@ -1,5 +1,5 @@
 import { Class, Subject, Teacher, Student } from "@prisma/client"
-import { prisma } from "@/lib/prisma"
+import  {prisma}  from "@/lib/prisma"
 import Link from "next/link"
 
 async function getDashboardData() {
@@ -19,7 +19,7 @@ async function getDashboardData() {
 }
 
 export default async function DashboardPage() {
-  const stats = await getDashboardData()
+  const stats = await getDashboardData();
 
   return (
     <div className="p-6">

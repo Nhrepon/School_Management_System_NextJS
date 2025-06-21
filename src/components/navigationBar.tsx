@@ -106,10 +106,10 @@ const NavigationBar = () => {
                   Login
                 </Link>
                 <Link
-                  href="/register"
+                  href="/registration"
                   className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium"
                 >
-                  Register
+                  Registration
                 </Link>
               </>
             )}
